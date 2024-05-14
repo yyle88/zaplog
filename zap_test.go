@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
 
@@ -46,4 +47,25 @@ func TestDebug5(t *testing.T) {
 	SUG.Debug()
 	SUG.Debug(0)
 	SUG.Debug([]int{0, 1, 2, 3, 4})
+}
+
+func TestNewZapConfig(t *testing.T) {
+	{
+		config := NewZapConfig(true, "debug", []string{"stdout"})
+		zlg, err := config.Build()
+		require.NoError(t, err)
+		zlg.Info("abc", zap.String("xyz", "uvw"))
+		zlg.Error("abc", zap.String("xyz", "uvw"))
+		zlg.Debug("abc", zap.String("xyz", "uvw"))
+		zlg.Warn("abc", zap.String("xyz", "uvw"))
+	}
+	{
+		config := NewZapConfig(false, "debug", []string{"stdout"})
+		zlg, err := config.Build()
+		require.NoError(t, err)
+		zlg.Info("abc", zap.String("xyz", "uvw"))
+		zlg.Error("abc", zap.String("xyz", "uvw"))
+		zlg.Debug("abc", zap.String("xyz", "uvw"))
+		zlg.Warn("abc", zap.String("xyz", "uvw"))
+	}
 }

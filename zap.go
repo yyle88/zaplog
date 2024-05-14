@@ -1,15 +1,13 @@
 package zaplog
 
 import (
-	"runtime"
-	"strings"
-
 	"github.com/pkg/errors"
+	"github.com/yyle88/zaplog/zaplogs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-var LOGGER = NewZapTuple(true, "DEBUG", []string{"stdout"}, 0)
+var LOGGER = MustCreateZapTuple(true, "DEBUG", []string{"stdout"}, 0)
 var LOG = LOGGER.LOG //最常用的日志
 var SUG = LOGGER.SUG
 
@@ -18,20 +16,28 @@ type ZapTuple struct {
 	SUG *zap.SugaredLogger //比较慢但也是种简单的调用接口
 }
 
-func NewZapTuple(debug bool, level string, outputNames []string, skip int) *ZapTuple {
+func NewZapTuple(zlg *zap.Logger) *ZapTuple {
+	return &ZapTuple{
+		LOG: zlg,
+		SUG: zlg.Sugar(),
+	}
+}
+
+func NewZapTupleWithSkip(zlg *zap.Logger, skip int) *ZapTuple {
+	return NewZapTuple(zlg.WithOptions(zap.AddCallerSkip(skip)))
+}
+
+func MustCreateZapTuple(debug bool, level string, outputPaths []string, skip int) *ZapTuple {
 	var opts []zap.Option
 	if skip > 0 {
 		opts = append(opts, zap.AddCallerSkip(skip))
 	}
-	config := NewZapConfig(debug, level, outputNames)
-	xlg, e := config.Build(opts...)
-	if e != nil {
-		panic(errors.Wrap(e, "ERROR WHEN NEW LOG"))
+	config := NewZapConfig(debug, level, outputPaths)
+	zlg, err := config.Build(opts...)
+	if err != nil {
+		panic(errors.Wrap(err, "ERROR WHEN NEW LOG"))
 	}
-	return &ZapTuple{
-		LOG: xlg,
-		SUG: xlg.Sugar(),
-	}
+	return NewZapTuple(zlg)
 }
 
 func (T *ZapTuple) SubLog(module string, fields ...zap.Field) *zap.Logger {
@@ -39,49 +45,33 @@ func (T *ZapTuple) SubLog(module string, fields ...zap.Field) *zap.Logger {
 }
 
 func (T *ZapTuple) SubZap(module string, fields ...zap.Field) *ZapTuple {
-	zlg := T.SubLog(module, fields...)
-	return &ZapTuple{
-		LOG: zlg,
-		SUG: zlg.Sugar(),
-	}
+	return NewZapTuple(T.SubLog(module, fields...))
 }
 
 func (T *ZapTuple) Close() error {
 	return T.LOG.Sync()
 }
 
-func NewZapConfig(debug bool, level string, outputPaths []string) (zpc *zap.Config) {
+func NewZapConfig(debug bool, level string, outputPaths []string) *zap.Config {
+	var config *zap.Config
 	if debug {
-		config := zap.NewDevelopmentConfig()
-		zpc = &config
+		config = newConfig(zap.NewDevelopmentConfig())
+		// config.DisableStacktrace = true //认为说还是需要打印错误的调用栈的，保持和默认值相同吧
+		config.EncoderConfig.EncodeCaller = zaplogs.NewCallerEncoderSimple()
 	} else {
-		config := zap.NewProductionConfig()
-		config.DisableCaller = true //是否在日志中展示文件的路径和代码行号
-		zpc = &config
+		config = newConfig(zap.NewProductionConfig())
+		// config.DisableCaller = true //是否在日志中展示文件的路径和代码行号，保持和默认值相同吧
+		config.EncoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
 	}
 	if len(outputPaths) > 0 {
-		zpc.OutputPaths = outputPaths
+		config.OutputPaths = outputPaths
 	}
-	zpc.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	encodeCaller := func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
-		enc.AppendString(strings.Join([]string{caller.TrimmedPath(), runtime.FuncForPC(caller.PC).Name()}, ":"))
-	}
-	zpc.EncoderConfig.EncodeCaller = encodeCaller
-	var zapLevel zapcore.Level
-	switch strings.ToLower(level) {
-	case "debug":
-		zapLevel = zap.DebugLevel
-	case "info":
-		zapLevel = zap.InfoLevel
-	case "warn":
-		zapLevel = zap.WarnLevel
-	case "error":
-		zapLevel = zap.ErrorLevel
-	case "panic":
-		zapLevel = zap.PanicLevel
-	default:
-		zapLevel = zap.InfoLevel
-	}
-	zpc.Level = zap.NewAtomicLevelAt(zapLevel)
-	return zpc
+	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	config.EncoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	config.Level = zap.NewAtomicLevelAt(zaplogs.NewLevelFromString(level))
+	return config
+}
+
+func newConfig(cfg zap.Config) *zap.Config {
+	return &cfg
 }
