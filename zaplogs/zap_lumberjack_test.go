@@ -11,22 +11,8 @@ import (
 
 func TestNewLumberjackZapLog(t *testing.T) {
 	cfgs := []*LumberjackZapCfg{
-		NewLumberjackZapCFG(&LumberjackConfig{
-			Filename:   "stdout",
-			MaxSize:    500,
-			MaxBackups: 5,
-			MaxAge:     20160,
-			Compress:   false,
-			Level:      "debug",
-		}),
-		NewLumberjackZapCFG(&LumberjackConfig{
-			Filename:   "stderr",
-			MaxSize:    500,
-			MaxBackups: 5,
-			MaxAge:     20160,
-			Compress:   false,
-			Level:      "error",
-		}),
+		NewLumberjackZapCFG(NewLumberjackConfig("stdout", "debug")),
+		NewLumberjackZapCFG(NewLumberjackConfig("stderr", "error")),
 	}
 
 	{
@@ -57,22 +43,8 @@ func TestNewLumberjackZapLOG(t *testing.T) {
 	errorPath := filepath.Join(temp, "error.log")
 
 	cfgs := []*LumberjackZapCfg{
-		NewLumberjackZapCFG(&LumberjackConfig{
-			Filename:   debugPath,
-			MaxSize:    500,
-			MaxBackups: 5,
-			MaxAge:     20160,
-			Compress:   false,
-			Level:      "debug",
-		}),
-		NewLumberjackZapCFG(&LumberjackConfig{
-			Filename:   errorPath,
-			MaxSize:    500,
-			MaxBackups: 5,
-			MaxAge:     20160,
-			Compress:   false,
-			Level:      "error",
-		}),
+		NewLumberjackZapCFG(NewLumberjackConfig(debugPath, "debug")),
+		NewLumberjackZapCFG(NewLumberjackConfig(errorPath, "error")),
 	}
 	defer func() {
 		for _, cfg := range cfgs {

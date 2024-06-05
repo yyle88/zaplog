@@ -30,6 +30,18 @@ type LumberjackConfig struct {
 	Level      string `json:"level"`
 }
 
+// NewLumberjackConfig 返回个默认的配置
+func NewLumberjackConfig(filename string, level string) *LumberjackConfig {
+	return &LumberjackConfig{
+		Filename:   filename,
+		MaxSize:    500, //megabytes. Example: 500M means 0.5G
+		MaxBackups: 5,
+		MaxAge:     3650, //days. Example: 3650 days means 10 years
+		Compress:   false,
+		Level:      level,
+	}
+}
+
 type LumberjackZapCfg struct {
 	SyncX *lumberjack.Logger
 	Level zapcore.Level
