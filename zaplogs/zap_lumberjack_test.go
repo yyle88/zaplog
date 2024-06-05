@@ -10,8 +10,8 @@ import (
 )
 
 func TestNewLumberjackZapLog(t *testing.T) {
-	cfgs := []*LumberjackZapLogConfig{
-		NewLumberjackZapLogConfig(&LumberjackConfig{
+	cfgs := []*LumberjackZapCfg{
+		NewLumberjackZapCFG(&LumberjackConfig{
 			Filename:   "stdout",
 			MaxSize:    500,
 			MaxBackups: 5,
@@ -19,7 +19,7 @@ func TestNewLumberjackZapLog(t *testing.T) {
 			Compress:   false,
 			Level:      "debug",
 		}),
-		NewLumberjackZapLogConfig(&LumberjackConfig{
+		NewLumberjackZapCFG(&LumberjackConfig{
 			Filename:   "stderr",
 			MaxSize:    500,
 			MaxBackups: 5,
@@ -30,14 +30,14 @@ func TestNewLumberjackZapLog(t *testing.T) {
 	}
 
 	{
-		zlg := NewLumberjackZapLogX(cfgs, true, 0)
+		zlg := NewLumberjackZapLog(cfgs, true, 0)
 		zlg.Info("123", zap.String("k", "v"))
 		zlg.Debug("abc", zap.String("k", "v"))
 		zlg.Error("xyz", zap.String("k", "v")) // will be print twice(both to stdout and stderr output)
 		zlg.Warn("uvw", zap.String("k", "v"))
 	}
 	{
-		zlg := NewLumberjackZapLogX(cfgs, false, 0)
+		zlg := NewLumberjackZapLog(cfgs, false, 0)
 		zlg.Info("123", zap.String("k", "v"))
 		zlg.Debug("abc", zap.String("k", "v"))
 		zlg.Error("xyz", zap.String("k", "v")) // will be print twice(both to stdout and stderr output)
@@ -45,17 +45,19 @@ func TestNewLumberjackZapLog(t *testing.T) {
 	}
 }
 
-func TestNewLumberjackZapLogX(t *testing.T) {
+func TestNewLumberjackZapLOG(t *testing.T) {
 	temp, err := os.MkdirTemp("", "zaplogs_case_simple")
 	require.NoError(t, err)
-	defer os.RemoveAll(temp)
+	defer func() {
+		require.NoError(t, os.RemoveAll(temp))
+	}()
 	t.Log(temp)
 
 	debugPath := filepath.Join(temp, "debug.log")
 	errorPath := filepath.Join(temp, "error.log")
 
-	cfgs := []*LumberjackZapLogConfig{
-		NewLumberjackZapLogConfig(&LumberjackConfig{
+	cfgs := []*LumberjackZapCfg{
+		NewLumberjackZapCFG(&LumberjackConfig{
 			Filename:   debugPath,
 			MaxSize:    500,
 			MaxBackups: 5,
@@ -63,7 +65,7 @@ func TestNewLumberjackZapLogX(t *testing.T) {
 			Compress:   false,
 			Level:      "debug",
 		}),
-		NewLumberjackZapLogConfig(&LumberjackConfig{
+		NewLumberjackZapCFG(&LumberjackConfig{
 			Filename:   errorPath,
 			MaxSize:    500,
 			MaxBackups: 5,
@@ -72,8 +74,13 @@ func TestNewLumberjackZapLogX(t *testing.T) {
 			Level:      "error",
 		}),
 	}
+	defer func() {
+		for _, cfg := range cfgs {
+			require.NoError(t, cfg.Close())
+		}
+	}()
 
-	zlg := NewLumberjackZapLog(cfgs)
+	zlg := NewLumberjackZapLOG(cfgs)
 	for i := 0; i < 3; i++ {
 		zlg.Info("123", zap.String("k", "v"))
 		zlg.Debug("abc", zap.String("k", "v"))

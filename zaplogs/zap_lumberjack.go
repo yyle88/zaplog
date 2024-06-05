@@ -3,13 +3,14 @@ package zaplogs
 import (
 	"os"
 
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 /*
-LumberjackConfig 的默认配置
+LumberjackConfig 在 json 格式的配置文件里的默认配置:
 
 	{
 		"filename": "stdout",
@@ -29,36 +30,45 @@ type LumberjackConfig struct {
 	Level      string `json:"level"`
 }
 
-func NewLumberjackSyncX(cfg *LumberjackConfig) *lumberjack.Logger {
-	return &lumberjack.Logger{
+type LumberjackZapCfg struct {
+	SyncX *lumberjack.Logger
+	Level zapcore.Level
+}
+
+func NewLumberjackZapCFG(cfg *LumberjackConfig) *LumberjackZapCfg {
+	syncX := &lumberjack.Logger{
 		Filename:   cfg.Filename,
 		MaxSize:    cfg.MaxSize,
 		MaxBackups: cfg.MaxBackups,
 		MaxAge:     cfg.MaxAge,
 		Compress:   cfg.Compress,
 	}
+	return NewLumberjackZapCfg(syncX, NewLevelFromString(cfg.Level))
 }
 
-func NewLumberjackZapLogConfig(cfg *LumberjackConfig) *LumberjackZapLogConfig {
-	return &LumberjackZapLogConfig{
-		SyncX: NewLumberjackSyncX(cfg),
-		Level: NewLevelFromString(cfg.Level),
+func NewLumberjackZapCfg(syncX *lumberjack.Logger, level zapcore.Level) *LumberjackZapCfg {
+	return &LumberjackZapCfg{
+		SyncX: syncX,
+		Level: level,
 	}
 }
 
-type LumberjackZapLogConfig struct {
-	SyncX *lumberjack.Logger
-	Level zapcore.Level
+func (cfg *LumberjackZapCfg) Close() error {
+	if err := cfg.SyncX.Close(); err != nil { //这里的close在底层是允许多次调用的，只有首次关闭是生效的
+		return errors.WithMessage(err, "close lumberjack is wrong")
+	}
+	return nil
 }
 
-// NewLumberjackZapLog 能够打印一组日志，各个日志使用不同的Level级别，而且能自动分页，当某个日志超过大小时自动切割
+// NewLumberjackZapLOG 能够打印一组日志，各个日志使用不同的Level级别，而且能自动分页，当某个日志超过大小时自动切割
 // 当然为了在标准输出中打印日志，也支持 stdout 和 stderr 的输出
-func NewLumberjackZapLog(cfgs []*LumberjackZapLogConfig) *zap.Logger {
-	return NewLumberjackZapLogX(cfgs, true, 0)
+// 起名好难
+func NewLumberjackZapLOG(cfgs []*LumberjackZapCfg) *zap.Logger {
+	return NewLumberjackZapLog(cfgs, true, 0)
 }
 
-// NewLumberjackZapLogX skip在内部已经+1因此外部通常传0即可
-func NewLumberjackZapLogX(cfgs []*LumberjackZapLogConfig, debug bool, skip int) *zap.Logger {
+// NewLumberjackZapLog skip在内部已经+1因此外部通常传0即可
+func NewLumberjackZapLog(cfgs []*LumberjackZapCfg, debug bool, skip int) *zap.Logger {
 	if len(cfgs) <= 0 {
 		panic("no cfgs")
 	}
