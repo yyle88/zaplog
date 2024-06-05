@@ -48,6 +48,14 @@ func (T *ZapTuple) SubZap(module string, fields ...zap.Field) *ZapTuple {
 	return NewZapTuple(T.SubLog(module, fields...))
 }
 
+func (T *ZapTuple) SubLog2(k, v string, fields ...zap.Field) *zap.Logger {
+	return T.LOG.With(zap.String(k, v)).With(fields...)
+}
+
+func (T *ZapTuple) SubZap2(k, v string, fields ...zap.Field) *ZapTuple {
+	return NewZapTuple(T.SubLog2(k, v, fields...))
+}
+
 func (T *ZapTuple) Close() error {
 	return T.LOG.Sync()
 }

@@ -9,12 +9,11 @@ import (
 func main() {
 	{
 		zaplog.LOG.Info("abc", zap.String("xyz", "uvw"))
-		zaplog.LOG.Error("abc", zap.String("xyz", "uvw"))
-		zaplog.LOG.Debug("abc", zap.String("xyz", "uvw"))
-		zaplog.LOG.Warn("abc", zap.String("xyz", "uvw"))
+		show(zaplog.LOG)
 	}
 	{
-		show()
+		zaplog.LOGS.P0.Info("abc", zap.String("xyz", "uvw"))
+		show(zaplog.LOGS.P1)
 	}
 	{
 		config := zaplog.NewZapConfig(true, "debug", []string{"stdout"})
@@ -23,9 +22,7 @@ func main() {
 			panic(errors.WithMessage(err, "wrong"))
 		}
 		zlg.Info("abc", zap.String("xyz", "uvw"))
-		zlg.Error("abc", zap.String("xyz", "uvw"))
-		zlg.Debug("abc", zap.String("xyz", "uvw"))
-		zlg.Warn("abc", zap.String("xyz", "uvw"))
+		show(zlg)
 	}
 	{
 		config := zaplog.NewZapConfig(false, "debug", []string{"stdout"})
@@ -34,15 +31,23 @@ func main() {
 			panic(errors.WithMessage(err, "wrong"))
 		}
 		zlg.Info("abc", zap.String("xyz", "uvw"))
-		zlg.Error("abc", zap.String("xyz", "uvw"))
-		zlg.Debug("abc", zap.String("xyz", "uvw"))
-		zlg.Warn("abc", zap.String("xyz", "uvw"))
+		show(zlg)
 	}
 }
 
-func show() {
-	zaplog.LOGS.P1.Info("abc", zap.String("xyz", "uvw"))
-	zaplog.LOGS.P1.Error("abc", zap.String("xyz", "uvw"))
-	zaplog.LOGS.P1.Debug("abc", zap.String("xyz", "uvw"))
-	zaplog.LOGS.P1.Warn("abc", zap.String("xyz", "uvw"))
+func show(zlg *zap.Logger) {
+	zlg.Error("abc", zap.String("xyz", "uvw"))
+	show2(zlg)
+	zlg.Info("========================================")
+}
+
+func show2(zlg *zap.Logger) {
+	zlg = zlg.With(zap.String("step2", "show2"))
+	zlg.Debug("abc", zap.String("xyz", "uvw"))
+	show3(zlg)
+}
+
+func show3(zlg *zap.Logger) {
+	zlg = zlg.With(zap.String("step3", "show3"))
+	zlg.Warn("abc", zap.String("xyz", "uvw"))
 }
