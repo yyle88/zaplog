@@ -7,7 +7,7 @@ import (
 
 var LOGS = NewSkipLogs(LOG)
 
-type skipLogs struct {
+type SkipLogs struct {
 	P0 *zap.Logger
 	P1 *zap.Logger
 	P2 *zap.Logger
@@ -16,8 +16,8 @@ type skipLogs struct {
 	mp *mutexmap.Map[int, *zap.Logger]
 }
 
-func NewSkipLogs(zlg *zap.Logger) *skipLogs {
-	return &skipLogs{
+func NewSkipLogs(zlg *zap.Logger) *SkipLogs {
+	return &SkipLogs{
 		P0: newSkipLog(zlg, 0),
 		P1: newSkipLog(zlg, 1),
 		P2: newSkipLog(zlg, 2),
@@ -27,7 +27,7 @@ func NewSkipLogs(zlg *zap.Logger) *skipLogs {
 	}
 }
 
-func (Z *skipLogs) Pn(skip int) *zap.Logger {
+func (Z *SkipLogs) Pn(skip int) *zap.Logger {
 	switch skip {
 	case 0:
 		return Z.P0

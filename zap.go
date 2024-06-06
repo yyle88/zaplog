@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var LOGGER = MustNewZapTuple(true, "DEBUG", []string{"stdout"}, 0)
+var LOGGER = MustNewZapTuple(NewConfig())
 var LOG = LOGGER.LOG //最常用的日志
 var SUG = LOGGER.SUG
 
@@ -27,13 +27,8 @@ func NewZapTupleSkip(zlg *zap.Logger, skip int) *ZapTuple {
 	return NewZapTuple(zlg.WithOptions(zap.AddCallerSkip(skip)))
 }
 
-func MustNewZapTuple(debug bool, level string, outputPaths []string, skip int) *ZapTuple {
-	var opts []zap.Option
-	if skip > 0 {
-		opts = append(opts, zap.AddCallerSkip(skip))
-	}
-	config := NewZapConfig(debug, level, outputPaths)
-	zlg, err := config.Build(opts...)
+func MustNewZapTuple(cfg *Config) *ZapTuple {
+	zlg, err := NewZapLog(cfg)
 	if err != nil {
 		panic(errors.Wrap(err, "ERROR WHEN NEW LOG"))
 	}
@@ -60,14 +55,45 @@ func (T *ZapTuple) Close() error {
 	return T.LOG.Sync()
 }
 
+type Config struct {
+	Debug       bool
+	Level       string
+	OutputPaths []string
+	Skip        int
+}
+
+func NewConfig() *Config {
+	return &Config{
+		Debug:       true,
+		Level:       "DEBUG",
+		OutputPaths: []string{"stdout"},
+		Skip:        0,
+	}
+}
+
+func NewZapLog(cfg *Config) (*zap.Logger, error) {
+	config := NewZapConfig(cfg.Debug, cfg.Level, cfg.OutputPaths)
+
+	var opts []zap.Option
+	if cfg.Skip > 0 {
+		opts = append(opts, zap.AddCallerSkip(cfg.Skip))
+	}
+
+	zlg, err := config.Build(opts...)
+	if err != nil {
+		return nil, errors.WithMessage(err, "new zap log is wrong")
+	}
+	return zlg, nil
+}
+
 func NewZapConfig(debug bool, level string, outputPaths []string) *zap.Config {
 	var config *zap.Config
 	if debug {
-		config = newConfig(zap.NewDevelopmentConfig())
+		config = newCfg(zap.NewDevelopmentConfig())
 		// config.DisableStacktrace = true //认为说还是需要打印错误的调用栈的，保持和默认值相同吧
 		config.EncoderConfig.EncodeCaller = zaplogs.NewCallerEncoderSimple()
 	} else {
-		config = newConfig(zap.NewProductionConfig())
+		config = newCfg(zap.NewProductionConfig())
 		// config.DisableCaller = true //是否在日志中展示文件的路径和代码行号，保持和默认值相同吧
 		config.EncoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
 	}
@@ -80,6 +106,6 @@ func NewZapConfig(debug bool, level string, outputPaths []string) *zap.Config {
 	return config
 }
 
-func newConfig(cfg zap.Config) *zap.Config {
-	return &cfg
+func newCfg(cfg zap.Config) *zap.Config {
+	return &cfg //就是把结构体类型的配置转换为指针类型
 }
