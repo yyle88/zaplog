@@ -2,9 +2,10 @@ package zaplog
 
 import (
 	"github.com/yyle88/mutexmap"
+	"go.uber.org/zap"
 )
 
-var ZAPS = NewSkipZaps()
+var ZAPS = NewSkipZaps(LOG)
 
 type skipZaps struct {
 	P0 *ZapTuple
@@ -15,13 +16,13 @@ type skipZaps struct {
 	mp *mutexmap.Map[int, *ZapTuple]
 }
 
-func NewSkipZaps() *skipZaps {
+func NewSkipZaps(zlg *zap.Logger) *skipZaps {
 	return &skipZaps{
-		P0: NewZapTupleWithSkip(LOG, 0),
-		P1: NewZapTupleWithSkip(LOG, 1),
-		P2: NewZapTupleWithSkip(LOG, 2),
-		P3: NewZapTupleWithSkip(LOG, 3),
-		P4: NewZapTupleWithSkip(LOG, 4),
+		P0: NewZapTupleSkip(zlg, 0),
+		P1: NewZapTupleSkip(zlg, 1),
+		P2: NewZapTupleSkip(zlg, 2),
+		P3: NewZapTupleSkip(zlg, 3),
+		P4: NewZapTupleSkip(zlg, 4),
 		mp: mutexmap.NewMap[int, *ZapTuple](0),
 	}
 }
@@ -41,7 +42,7 @@ func (Z *skipZaps) Pn(skip int) *ZapTuple {
 	default:
 		if skip > 0 {
 			res, _ := Z.mp.GetOrzSet(skip, func() *ZapTuple {
-				return NewZapTupleWithSkip(LOG, skip)
+				return NewZapTupleSkip(LOG, skip)
 			})
 			return res
 		} else {

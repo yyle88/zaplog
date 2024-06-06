@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var LOGGER = MustCreateZapTuple(true, "DEBUG", []string{"stdout"}, 0)
+var LOGGER = MustNewZapTuple(true, "DEBUG", []string{"stdout"}, 0)
 var LOG = LOGGER.LOG //最常用的日志
 var SUG = LOGGER.SUG
 
@@ -23,11 +23,11 @@ func NewZapTuple(zlg *zap.Logger) *ZapTuple {
 	}
 }
 
-func NewZapTupleWithSkip(zlg *zap.Logger, skip int) *ZapTuple {
+func NewZapTupleSkip(zlg *zap.Logger, skip int) *ZapTuple {
 	return NewZapTuple(zlg.WithOptions(zap.AddCallerSkip(skip)))
 }
 
-func MustCreateZapTuple(debug bool, level string, outputPaths []string, skip int) *ZapTuple {
+func MustNewZapTuple(debug bool, level string, outputPaths []string, skip int) *ZapTuple {
 	var opts []zap.Option
 	if skip > 0 {
 		opts = append(opts, zap.AddCallerSkip(skip))

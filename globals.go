@@ -9,6 +9,6 @@ func SetLog(zlg *zap.Logger) {
 	LOG = LOGGER.LOG //底下的函数会依赖于这个变量，它们会重新构造新对象
 	SUG = LOGGER.SUG
 
-	LOGS = NewSkipLogs()
-	ZAPS = NewSkipZaps()
+	LOGS = NewSkipLogs(zlg)
+	ZAPS = NewSkipZaps(zlg)
 }

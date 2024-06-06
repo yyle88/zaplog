@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap"
 )
 
-var LOGS = NewSkipLogs()
+var LOGS = NewSkipLogs(LOG)
 
 type skipLogs struct {
 	P0 *zap.Logger
@@ -16,13 +16,13 @@ type skipLogs struct {
 	mp *mutexmap.Map[int, *zap.Logger]
 }
 
-func NewSkipLogs() *skipLogs {
+func NewSkipLogs(zlg *zap.Logger) *skipLogs {
 	return &skipLogs{
-		P0: newSkipLog(LOG, 0),
-		P1: newSkipLog(LOG, 1),
-		P2: newSkipLog(LOG, 2),
-		P3: newSkipLog(LOG, 3),
-		P4: newSkipLog(LOG, 4),
+		P0: newSkipLog(zlg, 0),
+		P1: newSkipLog(zlg, 1),
+		P2: newSkipLog(zlg, 2),
+		P3: newSkipLog(zlg, 3),
+		P4: newSkipLog(zlg, 4),
 		mp: mutexmap.NewMap[int, *zap.Logger](0),
 	}
 }
