@@ -1,11 +1,11 @@
 module github.com/yyle88/zaplog
 
-go 1.22.2
+go 1.22.6
 
 require (
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.9.0
-	github.com/yyle88/mutexmap v1.0.3
+	github.com/yyle88/mutexmap v1.0.4
 	go.uber.org/zap v1.27.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
