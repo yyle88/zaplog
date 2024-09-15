@@ -7,59 +7,72 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var LOGGER = MustNewZapTuple(NewConfig())
+var LOGGER = MustNewZap(NewConfig())
+var ZAP = LOGGER
 var LOG = LOGGER.LOG //最常用的日志
 var SUG = LOGGER.SUG
 
-type ZapTuple struct {
+type Zap struct {
 	LOG *zap.Logger
 	SUG *zap.SugaredLogger //比较慢但也是种简单的调用接口
 }
 
-func NewZapTuple(zlg *zap.Logger) *ZapTuple {
-	return &ZapTuple{
+func NewZap(zlg *zap.Logger) *Zap {
+	return &Zap{
 		LOG: zlg,
 		SUG: zlg.Sugar(),
 	}
 }
 
-func NewZapTupleSkip(zlg *zap.Logger, skip int) *ZapTuple {
-	return NewZapTuple(zlg.WithOptions(zap.AddCallerSkip(skip)))
+func NewZapSkip(zlg *zap.Logger, skip int) *Zap {
+	return NewZap(zlg.WithOptions(zap.AddCallerSkip(skip)))
 }
 
-func MustNewZapTuple(cfg *Config) *ZapTuple {
+func MustNewZap(cfg *Config) *Zap {
 	zlg, err := NewZapLog(cfg)
 	if err != nil {
-		panic(errors.Wrap(err, "ERROR WHEN NEW LOG"))
+		panic(errors.Wrap(err, "ERROR WHEN NEW ZAP LOG"))
 	}
-	return NewZapTuple(zlg)
+	return NewZap(zlg)
 }
 
-func (T *ZapTuple) SubLog(module string, fields ...zap.Field) *zap.Logger {
-	return T.LOG.With(zap.String("module", module)).With(fields...)
-}
-
-func (T *ZapTuple) SubZap(module string, fields ...zap.Field) *ZapTuple {
-	return NewZapTuple(T.SubLog(module, fields...))
-}
-
-func (T *ZapTuple) SubLog2(k, v string, fields ...zap.Field) *zap.Logger {
-	return T.LOG.With(zap.String(k, v)).With(fields...)
-}
-
-func (T *ZapTuple) SubZap2(k, v string, fields ...zap.Field) *ZapTuple {
-	return NewZapTuple(T.SubLog2(k, v, fields...))
-}
-
-func (T *ZapTuple) SubLog3(zp zap.Field, fields ...zap.Field) *zap.Logger {
+func (T *Zap) SubLog(zp zap.Field, fields ...zap.Field) *zap.Logger {
 	return T.LOG.With(zp).With(fields...)
 }
 
-func (T *ZapTuple) SubZap3(zp zap.Field, fields ...zap.Field) *ZapTuple {
-	return NewZapTuple(T.SubLog3(zp, fields...))
+func (T *Zap) SubZap(zp zap.Field, fields ...zap.Field) *Zap {
+	return NewZap(T.SubLog(zp, fields...))
 }
 
-func (T *ZapTuple) Close() error {
+func (T *Zap) Sub(zp zap.Field, fields ...zap.Field) *Zap {
+	return NewZap(T.SubLog(zp, fields...))
+}
+
+func (T *Zap) SubLog2(k, v string, fields ...zap.Field) *zap.Logger {
+	return T.LOG.With(zap.String(k, v)).With(fields...)
+}
+
+func (T *Zap) SubZap2(k, v string, fields ...zap.Field) *Zap {
+	return NewZap(T.SubLog2(k, v, fields...))
+}
+
+func (T *Zap) Sub2(k, v string, fields ...zap.Field) *Zap {
+	return NewZap(T.SubLog2(k, v, fields...))
+}
+
+func (T *Zap) SubLog3(module string, fields ...zap.Field) *zap.Logger {
+	return T.LOG.With(zap.String("module", module)).With(fields...)
+}
+
+func (T *Zap) SubZap3(module string, fields ...zap.Field) *Zap {
+	return NewZap(T.SubLog3(module, fields...))
+}
+
+func (T *Zap) Sub3(module string, fields ...zap.Field) *Zap {
+	return NewZap(T.SubLog3(module, fields...))
+}
+
+func (T *Zap) Close() error {
 	return T.LOG.Sync()
 }
 

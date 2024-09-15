@@ -6,19 +6,19 @@ import (
 	"go.uber.org/zap"
 )
 
-func Test_skipLogs_Pn(t *testing.T) {
+func TestSkipLogs_Pn(t *testing.T) {
 	LOGS.Pn(0).Debug("s", zap.Int("i", 0))
 	func() {
 		LOGS.Pn(1).Debug("s", zap.Int("i", 1))
 	}()
 
-	caseRun(t, 1)
+	caseSkipLogs(t, 1)
 }
 
-func caseRun(t *testing.T, skip int) {
+func caseSkipLogs(t *testing.T, skip int) {
 	zlg := LOGS.Pn(skip)
 	zlg.Debug("abc", zap.Int("skip", skip))
 	if skip < 10 {
-		caseRun(t, skip+1)
+		caseSkipLogs(t, skip+1)
 	}
 }

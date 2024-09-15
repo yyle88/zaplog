@@ -19,3 +19,8 @@ func TestSetLog(t *testing.T) {
 		LOG.Panic("abc", zap.Error(errors.New("wrong"))) //这里panic不会打印wrong信息
 	}
 }
+
+func TestZapLog(t *testing.T) {
+	ZAP.LOG.Debug("abc", zap.Int("num", 123))
+	ZAP.SUG.Debug("abc", "-|-", "num", "-|-", 123)
+}

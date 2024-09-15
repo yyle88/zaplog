@@ -7,7 +7,8 @@ import "go.uber.org/zap"
 // 但默认的日志配置和风格也不是所有人都喜欢的，提供个修改的函数以便于使用者修改它
 // 在单元测试代码里还演示了如何取消自定义日志打印
 func SetLog(zlg *zap.Logger) {
-	LOGGER = NewZapTuple(zlg)
+	LOGGER = NewZap(zlg)
+	ZAP = LOGGER
 	LOG = LOGGER.LOG //底下的函数会依赖于这个变量，它们会重新构造新对象
 	SUG = LOGGER.SUG
 

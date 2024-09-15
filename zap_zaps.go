@@ -8,26 +8,26 @@ import (
 var ZAPS = NewSkipZaps(LOG)
 
 type SkipZaps struct {
-	P0 *ZapTuple
-	P1 *ZapTuple
-	P2 *ZapTuple
-	P3 *ZapTuple
-	P4 *ZapTuple
-	mp *mutexmap.Map[int, *ZapTuple]
+	P0 *Zap
+	P1 *Zap
+	P2 *Zap
+	P3 *Zap
+	P4 *Zap
+	mp *mutexmap.Map[int, *Zap]
 }
 
 func NewSkipZaps(zlg *zap.Logger) *SkipZaps {
 	return &SkipZaps{
-		P0: NewZapTupleSkip(zlg, 0),
-		P1: NewZapTupleSkip(zlg, 1),
-		P2: NewZapTupleSkip(zlg, 2),
-		P3: NewZapTupleSkip(zlg, 3),
-		P4: NewZapTupleSkip(zlg, 4),
-		mp: mutexmap.NewMap[int, *ZapTuple](0),
+		P0: NewZapSkip(zlg, 0),
+		P1: NewZapSkip(zlg, 1),
+		P2: NewZapSkip(zlg, 2),
+		P3: NewZapSkip(zlg, 3),
+		P4: NewZapSkip(zlg, 4),
+		mp: mutexmap.NewMap[int, *Zap](0),
 	}
 }
 
-func (Z *SkipZaps) Pn(skip int) *ZapTuple {
+func (Z *SkipZaps) Pn(skip int) *Zap {
 	switch skip {
 	case 0:
 		return Z.P0
@@ -41,8 +41,8 @@ func (Z *SkipZaps) Pn(skip int) *ZapTuple {
 		return Z.P4
 	default:
 		if skip > 0 {
-			res, _ := Z.mp.GetOrzSet(skip, func() *ZapTuple {
-				return NewZapTupleSkip(LOG, skip)
+			res, _ := Z.mp.GetOrzSet(skip, func() *Zap {
+				return NewZapSkip(LOG, skip)
 			})
 			return res
 		} else {
