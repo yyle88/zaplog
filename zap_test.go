@@ -31,6 +31,22 @@ func TestSubZap(t *testing.T) {
 	zp.SUG.Error(1, 2, 3)
 }
 
+func TestZapTuple_SubZap2(t *testing.T) {
+	zp := LOGGER.SubZap2("module", "abc", zap.String("K", "V"))
+	zp.LOG.Debug("msg", zap.Int("a", 1), zap.Int("b", 2))
+	zp.SUG.Debug(1, 2, 3)
+	zp.LOG.Error("msg", zap.Int("a", 1), zap.Int("b", 2))
+	zp.SUG.Error(1, 2, 3)
+}
+
+func TestZapTuple_SubZap3(t *testing.T) {
+	zp := LOGGER.SubZap3(zap.String("module", "abc"), zap.String("K", "V"))
+	zp.LOG.Debug("msg", zap.Int("a", 1), zap.Int("b", 2))
+	zp.SUG.Debug(1, 2, 3)
+	zp.LOG.Error("msg", zap.Int("a", 1), zap.Int("b", 2))
+	zp.SUG.Error(1, 2, 3)
+}
+
 func TestDebug3(t *testing.T) {
 	LOG.Debug("1")
 	LOG.Error("2", zap.Error(errors.New("x")))
