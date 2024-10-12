@@ -41,7 +41,7 @@ func (Z *SkipZaps) Pn(skip int) *Zap {
 		return Z.P4
 	default:
 		if skip > 0 {
-			res, _ := Z.mp.GetOrzSet(skip, func() *Zap {
+			res, _ := Z.mp.Getset(skip, func() *Zap {
 				return NewZapSkip(LOG, skip)
 			})
 			return res

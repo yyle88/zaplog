@@ -41,7 +41,7 @@ func (Z *SkipLogs) Pn(skip int) *zap.Logger {
 		return Z.P4
 	default:
 		if skip > 0 {
-			res, _ := Z.mp.GetOrzSet(skip, func() *zap.Logger {
+			res, _ := Z.mp.Getset(skip, func() *zap.Logger {
 				return newSkipLog(LOG, skip)
 			})
 			return res
