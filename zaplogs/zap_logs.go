@@ -1,6 +1,7 @@
 package zaplogs
 
 import (
+	"net/url"
 	"runtime"
 	"strings"
 
@@ -37,7 +38,7 @@ func NewDevelopmentEncoderSimple() zapcore.Encoder {
 	encoderConfig := zap.NewDevelopmentEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
-	encoderConfig.EncodeCaller = NewCallerEncoderSimple()
+	encoderConfig.EncodeCaller = NewCallerEncoderTrimPC()
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
@@ -49,9 +50,23 @@ func NewProductionEncoderSimple() zapcore.Encoder {
 	return zapcore.NewJSONEncoder(encoderConfig)
 }
 
-func NewCallerEncoderSimple() func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
+func NewCallerEncoderTrimPC() func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 	return func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
-		enc.AppendString(strings.Join([]string{caller.TrimmedPath(), runtime.FuncForPC(caller.PC).Name()}, ":"))
+		enc.AppendString(strings.Join([]string{caller.TrimmedPath(), softUnescape(runtime.FuncForPC(caller.PC).Name())}, ":"))
+	}
+}
+
+func softUnescape(raw string) string {
+	res, err := url.PathUnescape(raw) // 非 ASCII 的字符要做额外处理
+	if err != nil {
+		return raw // 当出错时就返回原始的
+	}
+	return res
+}
+
+func NewCallerEncoderFullPC() func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
+	return func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
+		enc.AppendString(strings.Join([]string{caller.FullPath(), softUnescape(runtime.FuncForPC(caller.PC).Name())}, ":"))
 	}
 }
 

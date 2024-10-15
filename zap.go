@@ -112,7 +112,7 @@ func NewZapConfig(debug bool, level string, outputPaths []string) *zap.Config {
 	if debug {
 		config = newCfg(zap.NewDevelopmentConfig())
 		// config.DisableStacktrace = true //认为说还是需要打印错误的调用栈的，保持和默认值相同吧
-		config.EncoderConfig.EncodeCaller = zaplogs.NewCallerEncoderSimple()
+		config.EncoderConfig.EncodeCaller = zaplogs.NewCallerEncoderTrimPC()
 	} else {
 		config = newCfg(zap.NewProductionConfig())
 		// config.DisableCaller = true //是否在日志中展示文件的路径和代码行号，保持和默认值相同吧
