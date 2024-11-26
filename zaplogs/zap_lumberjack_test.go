@@ -16,18 +16,18 @@ func TestNewLumberjackZapLog(t *testing.T) {
 	}
 
 	{
-		zlg := NewLumberjackZapLog(cfgs, true, 0)
-		zlg.Info("123", zap.String("k", "v"))
-		zlg.Debug("abc", zap.String("k", "v"))
-		zlg.Error("xyz", zap.String("k", "v")) // will be print twice(both to stdout and stderr output)
-		zlg.Warn("uvw", zap.String("k", "v"))
+		zapLog := NewLumberjackZapLog(cfgs, true, 0)
+		zapLog.Info("123", zap.String("k", "v"))
+		zapLog.Debug("abc", zap.String("k", "v"))
+		zapLog.Error("xyz", zap.String("k", "v")) // will be print twice(both to stdout and stderr output)
+		zapLog.Warn("uvw", zap.String("k", "v"))
 	}
 	{
-		zlg := NewLumberjackZapLog(cfgs, false, 0)
-		zlg.Info("123", zap.String("k", "v"))
-		zlg.Debug("abc", zap.String("k", "v"))
-		zlg.Error("xyz", zap.String("k", "v")) // will be print twice(both to stdout and stderr output)
-		zlg.Warn("uvw", zap.String("k", "v"))
+		zapLog := NewLumberjackZapLog(cfgs, false, 0)
+		zapLog.Info("123", zap.String("k", "v"))
+		zapLog.Debug("abc", zap.String("k", "v"))
+		zapLog.Error("xyz", zap.String("k", "v")) // will be print twice(both to stdout and stderr output)
+		zapLog.Warn("uvw", zap.String("k", "v"))
 	}
 }
 
@@ -52,14 +52,14 @@ func TestNewLumberjackZapLOG(t *testing.T) {
 		}
 	}()
 
-	zlg := NewLumberjackZapLOG(cfgs)
+	zapLog := NewLumberjackZapLOG(cfgs)
 	for i := 0; i < 3; i++ {
-		zlg.Info("123", zap.String("k", "v"))
-		zlg.Debug("abc", zap.String("k", "v"))
-		zlg.Error("xyz", zap.String("k", "v"))
-		zlg.Warn("uvw", zap.String("k", "v"))
+		zapLog.Info("123", zap.String("k", "v"))
+		zapLog.Debug("abc", zap.String("k", "v"))
+		zapLog.Error("xyz", zap.String("k", "v"))
+		zapLog.Warn("uvw", zap.String("k", "v"))
 	}
-	require.NoError(t, zlg.Sync())
+	require.NoError(t, zapLog.Sync())
 
 	showContent(t, debugPath)
 	showContent(t, errorPath)

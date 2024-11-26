@@ -1,15 +1,15 @@
 package zaplogs
 
 import (
-	"net/url"
 	"runtime"
 	"strings"
 
+	"github.com/yyle88/zaplog/internal/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-func NewLevelFromString(level string) zapcore.Level {
+func ParseLevelCode(level string) zapcore.Level {
 	switch strings.ToLower(level) {
 	case "debug":
 		return zap.DebugLevel
@@ -52,26 +52,18 @@ func NewProductionEncoderSimple() zapcore.Encoder {
 
 func NewCallerEncoderTrimPC() func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 	return func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
-		enc.AppendString(strings.Join([]string{caller.TrimmedPath(), softUnescape(runtime.FuncForPC(caller.PC).Name())}, ":"))
+		enc.AppendString(strings.Join([]string{caller.TrimmedPath(), utils.SoftPathUnescape(runtime.FuncForPC(caller.PC).Name())}, ":"))
 	}
-}
-
-func softUnescape(raw string) string {
-	res, err := url.PathUnescape(raw) // 非 ASCII 的字符要做额外处理
-	if err != nil {
-		return raw // 当出错时就返回原始的
-	}
-	return res
 }
 
 func NewCallerEncoderFullPC() func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 	return func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
-		enc.AppendString(strings.Join([]string{caller.FullPath(), softUnescape(runtime.FuncForPC(caller.PC).Name())}, ":"))
+		enc.AppendString(strings.Join([]string{caller.FullPath(), utils.SoftPathUnescape(runtime.FuncForPC(caller.PC).Name())}, ":"))
 	}
 }
 
-func NewOptionsSimple(debug bool, skip int) []zap.Option {
-	var options = []zap.Option{zap.AddCaller(), zap.AddCallerSkip(skip)}
+func NewOptionsSimple(debug bool, skipDepth int) []zap.Option {
+	var options = []zap.Option{zap.AddCaller(), zap.AddCallerSkip(skipDepth)}
 
 	if debug {
 		options = append(options, zap.AddStacktrace(zapcore.WarnLevel))

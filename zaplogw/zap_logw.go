@@ -6,38 +6,38 @@ import "go.uber.org/zap"
 // 通常是传给其它自定义的日志接口，但不知道接口是需要 Warn 函数，还是需要 Warning 函数，因此两个都实现就行，这样就更能适应接口
 // 需要注意的是因为有这一层的封装，因此传进去的 sug 对象需要 skip 这层，否则打印的位置就是不完美的
 type ZapLogw struct {
-	SUG *zap.SugaredLogger
+	sug *zap.SugaredLogger
 }
 
 func NewZapLogw(sug *zap.SugaredLogger) *ZapLogw {
-	return &ZapLogw{SUG: sug}
+	return &ZapLogw{sug: sug}
 }
 
 func (l *ZapLogw) Debug(msg string, kvs ...interface{}) {
-	l.SUG.Debugw(msg, kvs...)
+	l.sug.Debugw(msg, kvs...)
 }
 
 func (l *ZapLogw) Info(msg string, kvs ...interface{}) {
-	l.SUG.Infow(msg, kvs...)
+	l.sug.Infow(msg, kvs...)
 }
 
 func (l *ZapLogw) Error(msg string, kvs ...interface{}) {
-	l.SUG.Errorw(msg, kvs...)
+	l.sug.Errorw(msg, kvs...)
 }
 
 func (l *ZapLogw) Fatal(msg string, kvs ...interface{}) {
-	l.SUG.Fatalw(msg, kvs...)
+	l.sug.Fatalw(msg, kvs...)
 }
 
 // Panic is for log warning level
 func (l *ZapLogw) Panic(msg string, kvs ...interface{}) {
-	l.SUG.Panicw(msg, kvs...)
+	l.sug.Panicw(msg, kvs...)
 }
 
 func (l *ZapLogw) Warning(msg string, kvs ...interface{}) {
-	l.SUG.Warnw(msg, kvs...)
+	l.sug.Warnw(msg, kvs...)
 }
 
 func (l *ZapLogw) Warn(msg string, kvs ...interface{}) {
-	l.SUG.Warnw(msg, kvs...)
+	l.sug.Warnw(msg, kvs...)
 }

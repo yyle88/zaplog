@@ -19,10 +19,10 @@ func TestSkipZaps_Pn(t *testing.T) {
 	caseSkipZaps(t, 1)
 }
 
-func caseSkipZaps(t *testing.T, skip int) {
-	zpn := ZAPS.Pn(skip)
-	zpn.LOG.Debug("abc", zap.Int("skip", skip))
-	if skip < 10 {
-		caseSkipLogs(t, skip+1)
+func caseSkipZaps(t *testing.T, skipDepth int) {
+	zpn := ZAPS.Pn(skipDepth)
+	zpn.LOG.Debug("abc", zap.Int("skip", skipDepth))
+	if skipDepth < 10 {
+		caseSkipLogs(t, skipDepth+1)
 	}
 }

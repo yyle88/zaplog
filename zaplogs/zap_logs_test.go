@@ -1,10 +1,18 @@
 package zaplogs
 
-import "testing"
+import (
+	"testing"
 
-func TestSoftUnescape(t *testing.T) {
-	raw := "github.com/yyle88/zaplog/internal/examples/example1x/ZLG%e6%b5%8b%e9%9d%9eASCII%e8%b7%af%e5%be%84.TestZapLog"
-	t.Log(raw)
-	res := softUnescape(raw)
-	t.Log(res)
+	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+)
+
+func TestParseLevelCode(t *testing.T) {
+	require.Equal(t, zap.DebugLevel, ParseLevelCode("debug"))
+	require.Equal(t, zap.InfoLevel, ParseLevelCode("info"))
+	require.Equal(t, zap.WarnLevel, ParseLevelCode("warn"))
+	require.Equal(t, zap.ErrorLevel, ParseLevelCode("error"))
+	require.Equal(t, zap.PanicLevel, ParseLevelCode("panic"))
+
+	require.Equal(t, zap.InfoLevel, ParseLevelCode("unknown"))
 }

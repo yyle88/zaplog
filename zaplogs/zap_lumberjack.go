@@ -55,7 +55,7 @@ func NewLumberjackZapCFG(cfg *LumberjackConfig) *LumberjackZapCfg {
 		MaxAge:     cfg.MaxAge,
 		Compress:   cfg.Compress,
 	}
-	return NewLumberjackZapCfg(syncX, NewLevelFromString(cfg.Level))
+	return NewLumberjackZapCfg(syncX, ParseLevelCode(cfg.Level))
 }
 
 func NewLumberjackZapCfg(syncX *lumberjack.Logger, level zapcore.Level) *LumberjackZapCfg {
@@ -80,28 +80,28 @@ func NewLumberjackZapLOG(cfgs []*LumberjackZapCfg) *zap.Logger {
 }
 
 // NewLumberjackZapLog skip在内部已经+1因此外部通常传0即可
-func NewLumberjackZapLog(cfgs []*LumberjackZapCfg, debug bool, skip int) *zap.Logger {
+func NewLumberjackZapLog(cfgs []*LumberjackZapCfg, debug bool, skipDepth int) *zap.Logger {
 	if len(cfgs) <= 0 {
 		panic("no cfgs")
 	}
 	cores := make([]zapcore.Core, 0)
 
-	encSimple := NewEncoderSimple(debug)
+	coEnc := NewEncoderSimple(debug)
 
 	for _, cfg := range cfgs {
 		switch cfg.SyncX.Filename {
 		case "stdout":
-			cores = append(cores, zapcore.NewCore(encSimple, os.Stdout, cfg.Level))
+			cores = append(cores, zapcore.NewCore(coEnc, os.Stdout, cfg.Level))
 		case "stderr":
-			cores = append(cores, zapcore.NewCore(encSimple, os.Stderr, cfg.Level))
+			cores = append(cores, zapcore.NewCore(coEnc, os.Stderr, cfg.Level))
 		default:
-			cores = append(cores, zapcore.NewCore(encSimple, zapcore.AddSync(cfg.SyncX), cfg.Level))
+			cores = append(cores, zapcore.NewCore(coEnc, zapcore.AddSync(cfg.SyncX), cfg.Level))
 		}
 	}
 	tee := zapcore.NewTee(cores...)
 
-	options := NewOptionsSimple(debug, skip)
+	options := NewOptionsSimple(debug, skipDepth)
 
-	zlg := zap.New(tee, options...)
-	return zlg
+	zapLog := zap.New(tee, options...)
+	return zapLog
 }

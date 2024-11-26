@@ -5,8 +5,6 @@ import (
 	"go.uber.org/zap"
 )
 
-var ZAPS = NewSkipZaps(LOG)
-
 type SkipZaps struct {
 	P0 *Zap
 	P1 *Zap
@@ -16,19 +14,19 @@ type SkipZaps struct {
 	mp *mutexmap.Map[int, *Zap]
 }
 
-func NewSkipZaps(zlg *zap.Logger) *SkipZaps {
+func NewSkipZaps(zapLog *zap.Logger) *SkipZaps {
 	return &SkipZaps{
-		P0: NewZapSkip(zlg, 0),
-		P1: NewZapSkip(zlg, 1),
-		P2: NewZapSkip(zlg, 2),
-		P3: NewZapSkip(zlg, 3),
-		P4: NewZapSkip(zlg, 4),
+		P0: NewZapSkip(zapLog, 0),
+		P1: NewZapSkip(zapLog, 1),
+		P2: NewZapSkip(zapLog, 2),
+		P3: NewZapSkip(zapLog, 3),
+		P4: NewZapSkip(zapLog, 4),
 		mp: mutexmap.NewMap[int, *Zap](0),
 	}
 }
 
-func (Z *SkipZaps) Pn(skip int) *Zap {
-	switch skip {
+func (Z *SkipZaps) Pn(skipDepth int) *Zap {
+	switch skipDepth {
 	case 0:
 		return Z.P0
 	case 1:
@@ -40,9 +38,9 @@ func (Z *SkipZaps) Pn(skip int) *Zap {
 	case 4:
 		return Z.P4
 	default:
-		if skip > 0 {
-			res, _ := Z.mp.Getset(skip, func() *Zap {
-				return NewZapSkip(LOG, skip)
+		if skipDepth > 0 {
+			res, _ := Z.mp.Getset(skipDepth, func() *Zap {
+				return NewZapSkip(LOG, skipDepth)
 			})
 			return res
 		} else {
