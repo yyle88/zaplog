@@ -4,8 +4,8 @@ go 1.22.6
 
 require (
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.9.0
-	github.com/yyle88/mutexmap v1.0.7
+	github.com/stretchr/testify v1.10.0
+	github.com/yyle88/mutexmap v1.0.8
 	go.uber.org/zap v1.27.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )

@@ -1,29 +1,16 @@
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/yyle88/zaplog/release.yml?branch=main&label=BUILD)](https://github.com/yyle88/zaplog/actions/workflows/release.yml?query=branch%3Amain)
+[![GoDoc](https://pkg.go.dev/badge/github.com/yyle88/zaplog)](https://pkg.go.dev/github.com/yyle88/zaplog)
+[![Coverage Status](https://img.shields.io/coveralls/github/yyle88/zaplog/master.svg)](https://coveralls.io/github/yyle88/zaplog?branch=main)
+![Supported Go Versions](https://img.shields.io/badge/Go-1.22%2C%201.23-lightgrey.svg)
+[![GitHub Release](https://img.shields.io/github/release/yyle88/zaplog.svg)](https://github.com/yyle88/zaplog/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/yyle88/zaplog)](https://goreportcard.com/report/github.com/yyle88/zaplog)
+
 # ZapLog - Flexible and High-Performance Logging for Go
 
-ZapLog is a lightweight, flexible logging utility for Go applications, built on top of the fast and structured logging library [zap](https://github.com/uber-go/zap). It’s perfect for developers who need fine-grained control over their log outputs and want to handle concurrent logging safely and efficiently.
-
-Whether you're working on a small project or a complex, multi-threaded application, ZapLog lets you configure logging levels and handle log outputs in an easy-to-use interface, allowing you to focus on what really matters—building your app.
+ZapLog is a lightweight, flexible logging utility for Go applications, built on top of the fast and structured logging pkg [zap](https://github.com/uber-go/zap). 
 
 ## README
 [中文说明](README.zh.md)
-
-## Key Features
-
-- **Control Logging Levels**: Skip logs at different verbosity levels, making it easy to adjust what information gets logged based on the environment or execution stage.
-- **Concurrency-Safe**: Perfect for multi-threaded applications. ZapLog safely handles concurrent log access with `mutexmap.Map`.
-- **Optimized for Performance**: Built on `zap`, so it’s fast and efficient even in high-load applications.
-- **Easy to Integrate**: Simple setup with a familiar interface, using `zap` as the backend.
-
-## Why Use ZapLog?
-
-### 1. **Simple and Flexible Logging Levels**
-With ZapLog, you don’t have to worry about excessive log outputs cluttering your console or log files. You can easily control what’s logged, based on configurable verbosity levels (from `P0` to `P4`). Whether you’re debugging, in production, or need detailed traces, ZapLog has you covered.
-
-### 2. **Concurrency-Safe Logging**
-If you're working with a multi-threaded or multi-goroutine application, you need to ensure that logging doesn’t cause race conditions. ZapLog uses `mutexmap.Map` to provide thread-safe access to loggers, ensuring your logs are handled efficiently and safely, even in highly concurrent environments.
-
-### 3. **Seamless Integration**
-Integrating ZapLog into your project is a breeze. It works with your existing `zap` logger setup, and it’s simple to configure different log levels for different parts of your application.
 
 ## Installation
 
@@ -31,40 +18,71 @@ Integrating ZapLog into your project is a breeze. It works with your existing `z
 go get github.com/yyle88/zaplog
 ```
 
-## Getting Started
+## Core Features
 
-### Basic Example
+### 1. **Basic Logging**
 
-```go
-package main
-
-import (
-	"go.uber.org/zap"
-	"github.com/yyle88/zaplog"
-)
-
-func main() {
-	// Create a new zap logger instance
-	logger, _ := zap.NewProduction()
-
-	// Initialize ZapLog with the logger
-	logs := zaplog.NewSkipZaps(logger)
-
-	// Use different log levels
-	logs.Pn(0).Info("This is a P0 log")
-	logs.Pn(1).Warn("This is a P1 log")
-	logs.Pn(2).Error("This is a P2 log")
-}
-```
-
-### Advanced Usage: Concurrency
-
-ZapLog handles concurrent access to logs using a mutex-based map, making it ideal for multi-threaded applications. Here’s how you can use it in a concurrent setting:
+You can log messages with key-value pairs using `zaplog.LOG`:
 
 ```go
-logs := zaplog.NewSkipZaps(logger)
-logs.Pn(3).Info("Thread-safe logging example")
+zaplog.LOG.Debug("Debug message", zap.String("key", "value"))
+zaplog.LOG.Error("Error message", zap.Error(errors.New("error")))
 ```
+
+### 2. **Logging Multiple Key-Value Pairs**
+
+Log multiple fields in a single log entry by passing multiple key-value pairs:
+
+```go
+zaplog.LOG.Debug("Debug message", zap.String("key1", "value1"), zap.Int("key2", 2))
+zaplog.LOG.Error("Error message", zap.Int("key1", 1), zap.Error(errors.New("error")))
+```
+
+### 3. **Using `SugaredLogger`**
+
+For simpler logging, you can use `zaplog.SUG`, which supports variadic arguments for logging:
+
+```go
+SUG.Debug("Simplified log", "key1", "value1", "key2", 2)
+SUG.Error("Simplified error", errors.New("error"))
+```
+
+### 4. **Creating Sub-Loggers (SubZap)**
+
+You can create sub-loggers with default fields for additional context, making your logs more informative. Use `SubZap`, `SubZap2`, or `SubZap3` for creating sub-loggers:
+
+#### SubLogger Creation with `SubZap`:
+
+```go
+zp := zaplog.LOGGER.SubZap(zap.String("module", "abc"), zap.String("key", "value"))
+zp.LOG.Debug("Sub-log message", zap.Int("a", 1))
+zp.SUG.Error("Simplified sub-log error", 1, 2, 3)
+```
+
+#### SubLogger Creation with `SubZap2`:
+
+```go
+zp := zaplog.LOGGER.SubZap2("module", "abc", zap.String("key", "value"))
+zp.LOG.Debug("Sub-log message 2", zap.Int("a", 2))
+```
+
+#### SubLogger Creation with `SubZap3`:
+
+```go
+zp := zaplog.LOGGER.SubZap3("module", zap.String("key", "value"))
+zp.LOG.Debug("Sub-log message 3", zap.Int("a", 3))
+```
+
+### 5. **Handling Multiple Arguments in Sugared Logger**
+
+With `SugaredLogger`, you can pass various argument types, including arrays and slices:
+
+```go
+zaplog.SUG.Debug("Debug message", 1, 2, 3)
+zaplog.SUG.Debug([]int{0, 1, 2})
+```
+
+---
 
 ## Contributing
 
@@ -76,4 +94,4 @@ ZapLog is open-source and released under the [MIT License](LICENSE).
 
 ## Thank You
 
-If you find this package valuable, give it a star on GitHub! Thank you!!!
+If you find this package valuable, give it a ⭐ on GitHub! Thank you for your support!!!
