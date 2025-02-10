@@ -12,8 +12,8 @@ func main() {
 		show(zaplog.LOG)
 	}
 	{
-		zaplog.LOGS.P0.Info("abc", zap.String("xyz", "uvw"))
-		show(zaplog.LOGS.P1)
+		zaplog.LOGS.Skip0.Info("abc", zap.String("xyz", "uvw"))
+		show(zaplog.LOGS.Skip1)
 	}
 	{
 		config := zaplog.NewZapConfig(true, "debug", []string{"stdout"})

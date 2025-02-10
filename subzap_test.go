@@ -24,7 +24,7 @@ func TestZap_SubZap2(t *testing.T) {
 }
 
 func TestSubZap3(t *testing.T) {
-	zp := zaplog.LOGGER.SubZap3("module", zap.String("K", "V"))
+	zp := zaplog.LOGGER.SubModuleZap("module", zap.String("K", "V"))
 	zp.LOG.Debug("msg", zap.Int("a", 1), zap.Int("b", 2))
 	zp.SUG.Debug(1, 2, 3)
 	zp.LOG.Error("msg", zap.Int("a", 1), zap.Int("b", 2))

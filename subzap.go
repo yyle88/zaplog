@@ -10,7 +10,7 @@ func (T *Zap) SubLog2(k, v string, fields ...zap.Field) *zap.Logger {
 	return T.LOG.With(zap.String(k, v)).With(fields...)
 }
 
-func (T *Zap) SubLog3(module string, fields ...zap.Field) *zap.Logger {
+func (T *Zap) SubModuleLog(module string, fields ...zap.Field) *zap.Logger {
 	return T.LOG.With(zap.String("module", module)).With(fields...)
 }
 
@@ -22,6 +22,6 @@ func (T *Zap) SubZap2(k, v string, fields ...zap.Field) *Zap {
 	return NewZap(T.SubLog2(k, v, fields...))
 }
 
-func (T *Zap) SubZap3(module string, fields ...zap.Field) *Zap {
-	return NewZap(T.SubLog3(module, fields...))
+func (T *Zap) SubModuleZap(module string, fields ...zap.Field) *Zap {
+	return NewZap(T.SubModuleLog(module, fields...))
 }

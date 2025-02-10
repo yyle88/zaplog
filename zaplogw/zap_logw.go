@@ -29,7 +29,6 @@ func (l *ZapLogw) Fatal(msg string, kvs ...interface{}) {
 	l.sug.Fatalw(msg, kvs...)
 }
 
-// Panic is for log warning level
 func (l *ZapLogw) Panic(msg string, kvs ...interface{}) {
 	l.sug.Panicw(msg, kvs...)
 }

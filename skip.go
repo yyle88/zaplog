@@ -6,45 +6,45 @@ import (
 )
 
 type SkipLogs struct {
-	P0 *zap.Logger
-	P1 *zap.Logger
-	P2 *zap.Logger
-	P3 *zap.Logger
-	P4 *zap.Logger
-	mp *mutexmap.Map[int, *zap.Logger]
+	Skip0 *zap.Logger
+	Skip1 *zap.Logger
+	Skip2 *zap.Logger
+	Skip3 *zap.Logger
+	Skip4 *zap.Logger
+	cache *mutexmap.Map[int, *zap.Logger]
 }
 
 func NewSkipLogs(zapLog *zap.Logger) *SkipLogs {
 	return &SkipLogs{
-		P0: newSkipDepth(zapLog, 0),
-		P1: newSkipDepth(zapLog, 1),
-		P2: newSkipDepth(zapLog, 2),
-		P3: newSkipDepth(zapLog, 3),
-		P4: newSkipDepth(zapLog, 4),
-		mp: mutexmap.NewMap[int, *zap.Logger](0),
+		Skip0: newSkipDepth(zapLog, 0),
+		Skip1: newSkipDepth(zapLog, 1),
+		Skip2: newSkipDepth(zapLog, 2),
+		Skip3: newSkipDepth(zapLog, 3),
+		Skip4: newSkipDepth(zapLog, 4),
+		cache: mutexmap.NewMap[int, *zap.Logger](0),
 	}
 }
 
-func (Z *SkipLogs) Pn(skipDepth int) *zap.Logger {
+func (Z *SkipLogs) Skip(skipDepth int) *zap.Logger {
 	switch skipDepth {
 	case 0:
-		return Z.P0
+		return Z.Skip0
 	case 1:
-		return Z.P1
+		return Z.Skip1
 	case 2:
-		return Z.P2
+		return Z.Skip2
 	case 3:
-		return Z.P3
+		return Z.Skip3
 	case 4:
-		return Z.P4
+		return Z.Skip4
 	default:
 		if skipDepth > 0 {
-			res, _ := Z.mp.Getset(skipDepth, func() *zap.Logger {
+			res, _ := Z.cache.Getset(skipDepth, func() *zap.Logger {
 				return newSkipDepth(LOG, skipDepth)
 			})
 			return res
 		} else {
-			return Z.P0
+			return Z.Skip0
 		}
 	}
 }
