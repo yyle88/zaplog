@@ -44,7 +44,7 @@ func NewZapConfig(debug bool, level string, outputPaths []string) *zap.Config {
 	if debug {
 		config = utils.PtrX(zap.NewDevelopmentConfig())
 		// config.DisableStacktrace = true //认为说还是需要打印错误的调用栈的，保持和默认值相同吧
-		config.EncoderConfig.EncodeCaller = zaplogs.NewCallerEncoderTrimPC()
+		config.EncoderConfig.EncodeCaller = zaplogs.NewCallerEncoderTrimmed()
 	} else {
 		config = utils.PtrX(zap.NewProductionConfig())
 		// config.DisableCaller = true //是否在日志中展示文件的路径和代码行号，保持和默认值相同吧
@@ -55,6 +55,6 @@ func NewZapConfig(debug bool, level string, outputPaths []string) *zap.Config {
 	}
 	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	config.EncoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
-	config.Level = zap.NewAtomicLevelAt(zaplogs.ParseLevelCode(level))
+	config.Level = zap.NewAtomicLevelAt(zaplogs.ParseLevel(level))
 	return config
 }

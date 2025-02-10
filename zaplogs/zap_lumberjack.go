@@ -10,7 +10,7 @@ import (
 )
 
 /*
-LumberjackConfig 在 json 格式的配置文件里的默认配置:
+LumberjackLogConfig 在 json 格式的配置文件里的默认配置:
 
 	{
 		"filename": "stdout",
@@ -21,7 +21,7 @@ LumberjackConfig 在 json 格式的配置文件里的默认配置:
 		"level": "debug"
 	}
 */
-type LumberjackConfig struct {
+type LumberjackLogConfig struct {
 	Filename   string `json:"filename"`
 	MaxSize    int    `json:"max_size"`
 	MaxBackups int    `json:"maxbackups"`
@@ -30,9 +30,9 @@ type LumberjackConfig struct {
 	Level      string `json:"level"`
 }
 
-// NewLumberjackConfig 返回个默认的配置
-func NewLumberjackConfig(filename string, level string) *LumberjackConfig {
-	return &LumberjackConfig{
+// NewLumberjackLogConfig 返回个默认的配置
+func NewLumberjackLogConfig(filename string, level string) *LumberjackLogConfig {
+	return &LumberjackLogConfig{
 		Filename:   filename,
 		MaxSize:    500, //megabytes. Example: 500M means 0.5G
 		MaxBackups: 5,
@@ -42,65 +42,65 @@ func NewLumberjackConfig(filename string, level string) *LumberjackConfig {
 	}
 }
 
-type LumberjackZapCfg struct {
-	SyncX *lumberjack.Logger
-	Level zapcore.Level
+type LumberjackLoggerConfig struct {
+	Logger *lumberjack.Logger
+	Level  zapcore.Level
 }
 
-func NewLumberjackZapCFG(cfg *LumberjackConfig) *LumberjackZapCfg {
-	syncX := &lumberjack.Logger{
+func NewLumberjackLoggerConfigFromConfig(cfg *LumberjackLogConfig) *LumberjackLoggerConfig {
+	logger := &lumberjack.Logger{
 		Filename:   cfg.Filename,
 		MaxSize:    cfg.MaxSize,
 		MaxBackups: cfg.MaxBackups,
 		MaxAge:     cfg.MaxAge,
 		Compress:   cfg.Compress,
 	}
-	return NewLumberjackZapCfg(syncX, ParseLevelCode(cfg.Level))
+	return NewLumberjackLoggerConfigFromWriter(logger, ParseLevel(cfg.Level))
 }
 
-func NewLumberjackZapCfg(syncX *lumberjack.Logger, level zapcore.Level) *LumberjackZapCfg {
-	return &LumberjackZapCfg{
-		SyncX: syncX,
-		Level: level,
+func NewLumberjackLoggerConfigFromWriter(logger *lumberjack.Logger, level zapcore.Level) *LumberjackLoggerConfig {
+	return &LumberjackLoggerConfig{
+		Logger: logger,
+		Level:  level,
 	}
 }
 
-func (cfg *LumberjackZapCfg) Close() error {
-	if err := cfg.SyncX.Close(); err != nil { //这里的close在底层是允许多次调用的，只有首次关闭是生效的
+func (cfg *LumberjackLoggerConfig) Close() error {
+	if err := cfg.Logger.Close(); err != nil { //这里的close在底层是允许多次调用的，只有首次关闭是生效的
 		return errors.WithMessage(err, "close lumberjack is wrong")
 	}
 	return nil
 }
 
-// NewLumberjackZapLOG 能够打印一组日志，各个日志使用不同的Level级别，而且能自动分页，当某个日志超过大小时自动切割
+// NewLumberjackZapSimple 能够打印一组日志，各个日志使用不同的Level级别，而且能自动分页，当某个日志超过大小时自动切割
 // 当然为了在标准输出中打印日志，也支持 stdout 和 stderr 的输出
 // 起名好难
-func NewLumberjackZapLOG(cfgs []*LumberjackZapCfg) *zap.Logger {
-	return NewLumberjackZapLog(cfgs, true, 0)
+func NewLumberjackZapSimple(configs []*LumberjackLoggerConfig) *zap.Logger {
+	return NewLumberjackZapLogger(configs, true, 0)
 }
 
-// NewLumberjackZapLog skip在内部已经+1因此外部通常传0即可
-func NewLumberjackZapLog(cfgs []*LumberjackZapCfg, debug bool, skipDepth int) *zap.Logger {
-	if len(cfgs) <= 0 {
-		panic("no cfgs")
+// NewLumberjackZapLogger skip在内部已经+1因此外部通常传0即可
+func NewLumberjackZapLogger(configs []*LumberjackLoggerConfig, debug bool, skipDepth int) *zap.Logger {
+	if len(configs) <= 0 {
+		panic("no configs")
 	}
 	cores := make([]zapcore.Core, 0)
 
-	coEnc := NewEncoderSimple(debug)
+	coEnc := NewEncoder(debug)
 
-	for _, cfg := range cfgs {
-		switch cfg.SyncX.Filename {
+	for _, cfg := range configs {
+		switch cfg.Logger.Filename {
 		case "stdout":
 			cores = append(cores, zapcore.NewCore(coEnc, os.Stdout, cfg.Level))
 		case "stderr":
 			cores = append(cores, zapcore.NewCore(coEnc, os.Stderr, cfg.Level))
 		default:
-			cores = append(cores, zapcore.NewCore(coEnc, zapcore.AddSync(cfg.SyncX), cfg.Level))
+			cores = append(cores, zapcore.NewCore(coEnc, zapcore.AddSync(cfg.Logger), cfg.Level))
 		}
 	}
 	tee := zapcore.NewTee(cores...)
 
-	options := NewOptionsSimple(debug, skipDepth)
+	options := NewLoggerOptions(debug, skipDepth)
 
 	zapLog := zap.New(tee, options...)
 	return zapLog

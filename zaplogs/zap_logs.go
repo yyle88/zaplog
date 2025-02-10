@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func ParseLevelCode(level string) zapcore.Level {
+func ParseLevel(level string) zapcore.Level {
 	switch strings.ToLower(level) {
 	case "debug":
 		return zap.DebugLevel
@@ -26,23 +26,23 @@ func ParseLevelCode(level string) zapcore.Level {
 	}
 }
 
-func NewEncoderSimple(debug bool) zapcore.Encoder {
+func NewEncoder(debug bool) zapcore.Encoder {
 	if debug {
-		return NewDevelopmentEncoderSimple()
+		return NewDevelopmentEncoder()
 	} else {
-		return NewProductionEncoderSimple()
+		return NewProductionEncoder()
 	}
 }
 
-func NewDevelopmentEncoderSimple() zapcore.Encoder {
+func NewDevelopmentEncoder() zapcore.Encoder {
 	encoderConfig := zap.NewDevelopmentEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
-	encoderConfig.EncodeCaller = NewCallerEncoderTrimPC()
+	encoderConfig.EncodeCaller = NewCallerEncoderTrimmed()
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
-func NewProductionEncoderSimple() zapcore.Encoder {
+func NewProductionEncoder() zapcore.Encoder {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
@@ -50,19 +50,19 @@ func NewProductionEncoderSimple() zapcore.Encoder {
 	return zapcore.NewJSONEncoder(encoderConfig)
 }
 
-func NewCallerEncoderTrimPC() func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
+func NewCallerEncoderTrimmed() func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 	return func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 		enc.AppendString(strings.Join([]string{caller.TrimmedPath(), utils.SoftPathUnescape(runtime.FuncForPC(caller.PC).Name())}, ":"))
 	}
 }
 
-func NewCallerEncoderFullPC() func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
+func NewCallerEncoderFullPath() func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 	return func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 		enc.AppendString(strings.Join([]string{caller.FullPath(), utils.SoftPathUnescape(runtime.FuncForPC(caller.PC).Name())}, ":"))
 	}
 }
 
-func NewOptionsSimple(debug bool, skipDepth int) []zap.Option {
+func NewLoggerOptions(debug bool, skipDepth int) []zap.Option {
 	var options = []zap.Option{zap.AddCaller(), zap.AddCallerSkip(skipDepth)}
 
 	if debug {

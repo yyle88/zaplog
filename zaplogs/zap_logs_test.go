@@ -7,12 +7,12 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestParseLevelCode(t *testing.T) {
-	require.Equal(t, zap.DebugLevel, ParseLevelCode("debug"))
-	require.Equal(t, zap.InfoLevel, ParseLevelCode("info"))
-	require.Equal(t, zap.WarnLevel, ParseLevelCode("warn"))
-	require.Equal(t, zap.ErrorLevel, ParseLevelCode("error"))
-	require.Equal(t, zap.PanicLevel, ParseLevelCode("panic"))
+func TestParseLevel(t *testing.T) {
+	require.Equal(t, zap.DebugLevel, ParseLevel("debug"))
+	require.Equal(t, zap.InfoLevel, ParseLevel("info"))
+	require.Equal(t, zap.WarnLevel, ParseLevel("warn"))
+	require.Equal(t, zap.ErrorLevel, ParseLevel("error"))
+	require.Equal(t, zap.PanicLevel, ParseLevel("panic"))
 
-	require.Equal(t, zap.InfoLevel, ParseLevelCode("unknown"))
+	require.Equal(t, zap.InfoLevel, ParseLevel("unknown"))
 }

@@ -9,21 +9,21 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestNewLumberjackZapLog(t *testing.T) {
-	cfgs := []*LumberjackZapCfg{
-		NewLumberjackZapCFG(NewLumberjackConfig("stdout", "debug")),
-		NewLumberjackZapCFG(NewLumberjackConfig("stderr", "error")),
+func TestNewLumberjackZapLogger(t *testing.T) {
+	configs := []*LumberjackLoggerConfig{
+		NewLumberjackLoggerConfigFromConfig(NewLumberjackLogConfig("stdout", "debug")),
+		NewLumberjackLoggerConfigFromConfig(NewLumberjackLogConfig("stderr", "error")),
 	}
 
 	{
-		zapLog := NewLumberjackZapLog(cfgs, true, 0)
+		zapLog := NewLumberjackZapLogger(configs, true, 0)
 		zapLog.Info("123", zap.String("k", "v"))
 		zapLog.Debug("abc", zap.String("k", "v"))
 		zapLog.Error("xyz", zap.String("k", "v")) // will be print twice(both to stdout and stderr output)
 		zapLog.Warn("uvw", zap.String("k", "v"))
 	}
 	{
-		zapLog := NewLumberjackZapLog(cfgs, false, 0)
+		zapLog := NewLumberjackZapLogger(configs, false, 0)
 		zapLog.Info("123", zap.String("k", "v"))
 		zapLog.Debug("abc", zap.String("k", "v"))
 		zapLog.Error("xyz", zap.String("k", "v")) // will be print twice(both to stdout and stderr output)
@@ -31,7 +31,7 @@ func TestNewLumberjackZapLog(t *testing.T) {
 	}
 }
 
-func TestNewLumberjackZapLOG(t *testing.T) {
+func TestNewLumberjackZapSimple(t *testing.T) {
 	temp, err := os.MkdirTemp("", "zaplogs_case_simple")
 	require.NoError(t, err)
 	defer func() {
@@ -42,9 +42,9 @@ func TestNewLumberjackZapLOG(t *testing.T) {
 	debugPath := filepath.Join(temp, "debug.log")
 	errorPath := filepath.Join(temp, "error.log")
 
-	cfgs := []*LumberjackZapCfg{
-		NewLumberjackZapCFG(NewLumberjackConfig(debugPath, "debug")),
-		NewLumberjackZapCFG(NewLumberjackConfig(errorPath, "error")),
+	cfgs := []*LumberjackLoggerConfig{
+		NewLumberjackLoggerConfigFromConfig(NewLumberjackLogConfig(debugPath, "debug")),
+		NewLumberjackLoggerConfigFromConfig(NewLumberjackLogConfig(errorPath, "error")),
 	}
 	defer func() {
 		for _, cfg := range cfgs {
@@ -52,7 +52,7 @@ func TestNewLumberjackZapLOG(t *testing.T) {
 		}
 	}()
 
-	zapLog := NewLumberjackZapLOG(cfgs)
+	zapLog := NewLumberjackZapSimple(cfgs)
 	for i := 0; i < 3; i++ {
 		zapLog.Info("123", zap.String("k", "v"))
 		zapLog.Debug("abc", zap.String("k", "v"))
