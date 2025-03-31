@@ -42,7 +42,7 @@ SUG.Error("简化错误", errors.New("错误"))
 
 ### 4. **创建子日志（SubZap）**
 
-您可以创建带有默认字段的子日志，以提供额外的上下文信息，使日志更具可读性。使用 `SubZap`、`SubZap2` 或 `SubZap3` 创建子日志：
+您可以创建带有默认字段的子日志，以提供额外的上下文信息，使日志更具可读性。使用 `SubZap`、`NewZap` 创建子日志：
 
 #### 使用 `SubZap` 创建子日志：
 
@@ -52,18 +52,11 @@ zp.LOG.Debug("子日志信息", zap.Int("a", 1))
 zp.SUG.Error("简化子日志错误", 1, 2, 3)
 ```
 
-#### 使用 `SubZap2` 创建子日志：
+#### 使用 `NewZap` 创建子日志：
 
 ```go
-zp := zaplog.LOGGER.SubZap2("module", "abc", zap.String("key", "value"))
+zp := zaplog.LOGGER.NewZap("module", "abc", zap.String("key", "value"))
 zp.LOG.Debug("子日志信息2", zap.Int("a", 2))
-```
-
-#### 使用 `SubZap3` 创建子日志：
-
-```go
-zp := zaplog.LOGGER.SubZap3("模块名", zap.String("key", "value"))
-zp.LOG.Debug("子日志信息3", zap.Int("a", 3))
 ```
 
 ### 5. **在 SugaredLogger 中处理多参数**

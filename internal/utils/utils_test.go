@@ -15,10 +15,10 @@ func TestGetPointer(t *testing.T) {
 	require.Equal(t, "a", p.v)
 }
 
-func TestSoftUrlPathUnescape(t *testing.T) {
+func TestUpUnescape(t *testing.T) {
 	raw := "github.com/yyle88/zaplog/internal/examples/example1x/ZLG%e6%b5%8b%e9%9d%9eASCII%e8%b7%af%e5%be%84.TestZapLog"
 	//goland:noinspection GoPrintFunctions
 	t.Log(raw)
-	res := SoftUrlPathUnescape(raw)
+	res := UpUnescape(raw)
 	t.Log(res)
 }

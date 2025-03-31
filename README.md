@@ -49,7 +49,7 @@ SUG.Error("Simplified error", errors.New("error"))
 
 ### 4. **Creating Sub-Loggers (SubZap)**
 
-You can create sub-loggers with default fields for additional context, making your logs more informative. Use `SubZap`, `SubZap2`, or `SubZap3` for creating sub-loggers:
+You can create sub-loggers with default fields for additional context, making your logs more informative. Use `SubZap`, `NewZap` for creating sub-loggers:
 
 #### SubLogger Creation with `SubZap`:
 
@@ -59,18 +59,11 @@ zp.LOG.Debug("Sub-log message", zap.Int("a", 1))
 zp.SUG.Error("Simplified sub-log error", 1, 2, 3)
 ```
 
-#### SubLogger Creation with `SubZap2`:
+#### SubLogger Creation with `NewZap`:
 
 ```go
-zp := zaplog.LOGGER.SubZap2("module", "abc", zap.String("key", "value"))
+zp := zaplog.LOGGER.NewZap("module", "abc", zap.String("key", "value"))
 zp.LOG.Debug("Sub-log message 2", zap.Int("a", 2))
-```
-
-#### SubLogger Creation with `SubZap3`:
-
-```go
-zp := zaplog.LOGGER.SubZap3("module", zap.String("key", "value"))
-zp.LOG.Debug("Sub-log message 3", zap.Int("a", 3))
 ```
 
 ### 5. **Handling Multiple Arguments in Sugared Logger**
