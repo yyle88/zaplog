@@ -14,6 +14,7 @@ var ZAPS = NewSkipZaps(LOG)
 // 这些全局变量让使用变得更方便，其它包可以定义日志格式就能使用
 // 但默认的日志配置和风格也不是所有人都喜欢的，提供个修改的函数以便于使用者修改它
 // 在单元测试代码里还演示了如何取消自定义日志打印
+// 推荐在系统启动前调用它，而不要在业务逻辑中调用
 func SetLog(zapLog *zap.Logger) {
 	LOGGER = NewZap(zapLog)
 	ZAP = LOGGER
