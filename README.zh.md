@@ -70,16 +70,37 @@ zaplog.SUG.Debug([]int{0, 1, 2})
 
 ---
 
-## 贡献
+## 许可证类型
 
-欢迎贡献！无论是修复 bug、改进文档，还是添加新特性，我们都非常感谢您的贡献。请遵循标准的 fork-and-pull 请求流程。
+项目采用 MIT 许可证，详情请参阅 [LICENSE](LICENSE)。
 
-## 许可证
+---
 
-ZapLog 是开源软件，采用 [MIT 许可证](LICENSE) 进行发布。
+## 贡献新代码
 
-## 感谢
+非常欢迎贡献代码！贡献流程：
 
-如果您觉得这个包对您有帮助，请在 GitHub 上给它加个星标！感谢您的支持！！！
+1. 在 GitHub 上 Fork 仓库 （通过网页界面操作）。
+2. 克隆Forked项目 (`git clone https://github.com/yourname/repo-name.git`)。
+3. 在克隆的项目里 (`cd repo-name`)
+4. 创建功能分支（`git checkout -b feature/xxx`）。
+5. 添加代码 (`git add .`)。
+6. 提交更改（`git commit -m "添加功能 xxx"`）。
+7. 推送分支（`git push origin feature/xxx`）。
+8. 发起 Pull Request （通过网页界面操作）。
 
-如果觉得本库对您有帮助，请在 GitHub 上给个 ⭐，感谢支持！！！
+请确保测试通过并更新相关文档。
+
+---
+
+## 贡献与支持
+
+欢迎通过提交 pull request 或报告问题来贡献此项目。
+
+如果你觉得这个包对你有帮助，请在 GitHub 上给个 ⭐，感谢支持！！！
+
+**感谢你的支持！**
+
+**祝编程愉快！** 🎉
+
+Give me stars. Thank you!!!

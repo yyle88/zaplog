@@ -42,11 +42,11 @@ func NewZapLog(cfg *Config) (*zap.Logger, error) {
 func NewZapConfig(debug bool, level string, outputPaths []string) *zap.Config {
 	var config *zap.Config
 	if debug {
-		config = utils.GetPointer(zap.NewDevelopmentConfig())
+		config = utils.GetValuePointer(zap.NewDevelopmentConfig())
 		// config.DisableStacktrace = true //认为说还是需要打印错误的调用栈的，保持和默认值相同吧
 		config.EncoderConfig.EncodeCaller = zaplogs.NewCallerEncoderTrimPath()
 	} else {
-		config = utils.GetPointer(zap.NewProductionConfig())
+		config = utils.GetValuePointer(zap.NewProductionConfig())
 		// config.DisableCaller = true //是否在日志中展示文件的路径和代码行号，保持和默认值相同吧
 		config.EncoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
 	}

@@ -52,13 +52,13 @@ func NewProductionEncoder() zapcore.Encoder {
 
 func NewCallerEncoderTrimPath() func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 	return func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
-		enc.AppendString(strings.Join([]string{caller.TrimmedPath(), utils.UpUnescape(runtime.FuncForPC(caller.PC).Name())}, ":"))
+		enc.AppendString(strings.Join([]string{caller.TrimmedPath(), utils.PathUnescape(runtime.FuncForPC(caller.PC).Name())}, ":"))
 	}
 }
 
 func NewCallerEncoderFullPath() func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
 	return func(caller zapcore.EntryCaller, enc zapcore.PrimitiveArrayEncoder) {
-		enc.AppendString(strings.Join([]string{caller.FullPath(), utils.UpUnescape(runtime.FuncForPC(caller.PC).Name())}, ":"))
+		enc.AppendString(strings.Join([]string{caller.FullPath(), utils.PathUnescape(runtime.FuncForPC(caller.PC).Name())}, ":"))
 	}
 }
 
