@@ -38,7 +38,7 @@ func TestNewEncoderDebug(t *testing.T) {
 	logger.Error("This is an error message")
 }
 
-func TestNewDevelopmentEncoderUsage(t *testing.T) {
+func TestNewDevelopmentEncoder(t *testing.T) {
 	encoder := NewDevelopmentEncoder()
 	core := zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), zap.DebugLevel)
 	logger := zap.New(core)
@@ -48,8 +48,8 @@ func TestNewDevelopmentEncoderUsage(t *testing.T) {
 	logger.Error("This is an error message with development encoder")
 }
 
-func TestNewProductionEncoderUsage(t *testing.T) {
-	encoder := NewProductionEncoder()
+func TestNewProductionsEncoder(t *testing.T) {
+	encoder := NewProductionsEncoder()
 	core := zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), zap.DebugLevel)
 	logger := zap.New(core)
 	logger.Debug("This is a debug message with production encoder")
@@ -90,8 +90,8 @@ func TestNewCallerEncoderFullPath(t *testing.T) {
 	logger.Error("This is an error message with custom caller encoder")
 }
 
-func TestNewLoggerOptions(t *testing.T) {
-	options := NewLoggerOptions(true, 1)
+func TestNewLoggerOptionsWithSkip(t *testing.T) {
+	options := NewLoggerOptionsWithSkip(true, 1)
 	core := zapcore.NewCore(
 		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
 		zapcore.AddSync(os.Stdout),

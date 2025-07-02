@@ -1,6 +1,7 @@
-package zaplogs
+package zaplumberjack
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -9,21 +10,37 @@ import (
 	"go.uber.org/zap"
 )
 
-func TestNewLumberjackZapLogger(t *testing.T) {
-	configs := []*LumberjackLoggerConfig{
-		NewLumberjackLoggerConfigFromConfig(NewLumberjackLogConfig("stdout", "debug")),
-		NewLumberjackLoggerConfigFromConfig(NewLumberjackLogConfig("stderr", "error")),
+func TestNewConfig(t *testing.T) {
+	config := NewConfig("stdout", "DEBUG")
+	data, err := json.MarshalIndent(config, "", "\t")
+	require.NoError(t, err)
+	t.Log(string(data))
+	output := `{
+	"filename": "stdout",
+	"max_size": 500,
+	"maxbackups": 5,
+	"maxage": 3650,
+	"compress": false,
+	"level": "DEBUG"
+}`
+	require.Equal(t, output, string(data))
+}
+
+func TestNewZapLumberjackFromConfig(t *testing.T) {
+	zapLumberjacks := []*ZapLumberjack{
+		NewZapLumberjackFromConfig(NewConfig("stdout", "DEBUG")),
+		NewZapLumberjackFromConfig(NewConfig("stderr", "ERROR")),
 	}
 
 	{
-		zapLog := NewLumberjackZapLogger(configs, true, 0)
+		zapLog := NewLogger(zapLumberjacks, true, 0)
 		zapLog.Info("123", zap.String("k", "v"))
 		zapLog.Debug("abc", zap.String("k", "v"))
 		zapLog.Error("xyz", zap.String("k", "v")) // will be print twice(both to stdout and stderr output)
 		zapLog.Warn("uvw", zap.String("k", "v"))
 	}
 	{
-		zapLog := NewLumberjackZapLogger(configs, false, 0)
+		zapLog := NewLogger(zapLumberjacks, false, 0)
 		zapLog.Info("123", zap.String("k", "v"))
 		zapLog.Debug("abc", zap.String("k", "v"))
 		zapLog.Error("xyz", zap.String("k", "v")) // will be print twice(both to stdout and stderr output)
@@ -31,7 +48,7 @@ func TestNewLumberjackZapLogger(t *testing.T) {
 	}
 }
 
-func TestNewLumberjackZapSimple(t *testing.T) {
+func TestNewZapLumberjack(t *testing.T) {
 	temp, err := os.MkdirTemp("", "zaplogs_case_simple")
 	require.NoError(t, err)
 	defer func() {
@@ -42,17 +59,17 @@ func TestNewLumberjackZapSimple(t *testing.T) {
 	debugPath := filepath.Join(temp, "debug.log")
 	errorPath := filepath.Join(temp, "error.log")
 
-	cfgs := []*LumberjackLoggerConfig{
-		NewLumberjackLoggerConfigFromConfig(NewLumberjackLogConfig(debugPath, "debug")),
-		NewLumberjackLoggerConfigFromConfig(NewLumberjackLogConfig(errorPath, "error")),
+	zapLumberjacks := []*ZapLumberjack{
+		NewZapLumberjackFromConfig(NewConfig(debugPath, "DEBUG")),
+		NewZapLumberjackFromConfig(NewConfig(errorPath, "ERROR")),
 	}
 	defer func() {
-		for _, cfg := range cfgs {
+		for _, cfg := range zapLumberjacks {
 			require.NoError(t, cfg.Close())
 		}
 	}()
 
-	zapLog := NewLumberjackZapSimple(cfgs)
+	zapLog := GetLogger(zapLumberjacks)
 	for i := 0; i < 3; i++ {
 		zapLog.Info("123", zap.String("k", "v"))
 		zapLog.Debug("abc", zap.String("k", "v"))

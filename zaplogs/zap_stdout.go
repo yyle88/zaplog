@@ -7,8 +7,8 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// NewStdoutZapSimple 日志输出到stdio里
-func NewStdoutZapSimple(level zapcore.Level) *zap.Logger {
+// GetStdoutZapLogger 日志输出到stdio里
+func GetStdoutZapLogger(level zapcore.Level) *zap.Logger {
 	return NewStdoutZapLogger(true, level, 0)
 }
 
@@ -24,7 +24,7 @@ func NewStdoutZapLogger(debug bool, level zapcore.Level, skipDepth int) *zap.Log
 	cores = append(cores, zapcore.NewCore(encoder, writeSyncer, level))
 	tee := zapcore.NewTee(cores...)
 
-	options := NewLoggerOptions(debug, skipDepth)
+	options := NewLoggerOptionsWithSkip(debug, skipDepth)
 
 	zapLog := zap.New(tee, options...) //修改堆栈深度
 	return zapLog

@@ -7,8 +7,8 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func TestNewStdoutZapSimple(t *testing.T) {
-	zapLog := NewStdoutZapSimple(zapcore.DebugLevel)
+func TestGetStdoutZapLogger(t *testing.T) {
+	zapLog := GetStdoutZapLogger(zapcore.DebugLevel)
 	zapLog.Debug("abc")
 	zapLog.Error("abc", zap.String("xyz", "uvw"))
 	zapLog.Info("123")

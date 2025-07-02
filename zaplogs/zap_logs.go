@@ -30,7 +30,7 @@ func NewEncoder(debug bool) zapcore.Encoder {
 	if debug {
 		return NewDevelopmentEncoder()
 	} else {
-		return NewProductionEncoder()
+		return NewProductionsEncoder()
 	}
 }
 
@@ -42,7 +42,7 @@ func NewDevelopmentEncoder() zapcore.Encoder {
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
-func NewProductionEncoder() zapcore.Encoder {
+func NewProductionsEncoder() zapcore.Encoder {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
@@ -62,7 +62,7 @@ func NewCallerEncoderFullPath() func(caller zapcore.EntryCaller, enc zapcore.Pri
 	}
 }
 
-func NewLoggerOptions(debug bool, skipDepth int) []zap.Option {
+func NewLoggerOptionsWithSkip(debug bool, skipDepth int) []zap.Option {
 	var options = []zap.Option{zap.AddCaller(), zap.AddCallerSkip(skipDepth)}
 
 	if debug {
