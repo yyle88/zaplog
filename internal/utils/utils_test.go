@@ -31,3 +31,9 @@ func TestPathUnescape(t *testing.T) {
 	res := PathUnescape(raw)
 	t.Log(res)
 }
+
+func TestRemoveDuplicate(t *testing.T) {
+	a := []string{"a", "b", "c", "a", "b"}
+	b := RemoveDuplicate(a)
+	require.EqualValues(t, []string{"a", "b", "c"}, b)
+}

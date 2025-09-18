@@ -22,3 +22,15 @@ func PathUnescape(raw string) string {
 	}
 	return res
 }
+
+func RemoveDuplicate[T comparable](values []T) []T {
+	results := make([]T, 0, len(values))
+	seen := make(map[T]struct{}, len(values))
+	for _, v := range values {
+		if _, ok := seen[v]; !ok {
+			seen[v] = struct{}{}
+			results = append(results, v)
+		}
+	}
+	return results
+}

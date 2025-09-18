@@ -24,6 +24,19 @@ func NewConfig() *Config {
 	}
 }
 
+func (c *Config) SetOutputPaths(paths []string) *Config {
+	if len(paths) == 0 {
+		paths = []string{"stdout"}
+	}
+	c.OutputPaths = utils.RemoveDuplicate(paths)
+	return c
+}
+
+func (c *Config) AddOutputPaths(paths ...string) *Config {
+	c.OutputPaths = utils.RemoveDuplicate(append(c.OutputPaths, paths...))
+	return c
+}
+
 func NewZapLog(cfg *Config) (*zap.Logger, error) {
 	config := NewZapConfig(cfg.Debug, cfg.Level, cfg.OutputPaths)
 

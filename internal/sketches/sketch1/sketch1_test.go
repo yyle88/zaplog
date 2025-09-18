@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
+	"github.com/stretchr/testify/require"
 	"github.com/yyle88/zaplog"
-	"github.com/yyle88/zaplog/internal/tests"
 	"go.uber.org/zap"
 )
 
@@ -15,11 +15,11 @@ func TestExample(t *testing.T) {
 
 	zaplog.LOG.Debug("abc") //这条日志不会被打印
 
-	tests.ExpectPanic(t, func() {
+	require.Panics(t, func() {
 		zaplog.LOG.Panic("abc") //这条日志不会被打印，但还是会 panic(ce.Message) 的
 	})
 
-	tests.ExpectPanic(t, func() {
+	require.Panics(t, func() {
 		zaplog.LOG.Panic("abc", zap.Error(errors.New("wrong"))) //这里panic不会打印wrong信息
 	})
 }

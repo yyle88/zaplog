@@ -35,7 +35,9 @@ func TestDebug4(t *testing.T) {
 
 func TestDebug5(t *testing.T) {
 	zaplog.SUG.Debug(1, 2, 3, 4, 5, 6)
-	zaplog.SUG.Debug("1", 2, 3, 4, 5, 6)
+	zaplog.SUG.Debugln(1, 2, 3, 4, 5, 6)
+	zaplog.SUG.Debug("1", 2, 3, 4, "5", 6)
+	zaplog.SUG.Debugln("1", 2, 3, 4, "5", 6)
 	zaplog.SUG.Debug()
 	zaplog.SUG.Debug(0)
 	zaplog.SUG.Debug([]int{0, 1, 2, 3, 4})
